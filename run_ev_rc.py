@@ -48,40 +48,6 @@ rhum = st.number_input("Relative Humidity (%)", value=0.80)
 J = st.number_input("Julian Day", value=105)
 
 
-def date_to_julian_day(date):
-    # Calculate Julian day
-    fmt = "%Y-%m-%d"
-    dt = datetime.strptime(date, fmt)
-    year = dt.year
-    month = dt.month
-    day = dt.day
-
-    if month < 3:
-        month += 12
-        year -= 1
-
-    A = year // 100
-    B = A // 4
-    C = 2 - A + B
-    E = int(365.25 * (year + 4716))
-    F = int(30.6001 * (month + 1))
-
-    julian_day = C + day + E + F - 1524.5
-    return julian_day
-
-# Streamlit app
-st.title("Date to Julian Day Converter")
-
-# Date input
-date = st.date_input("Enter a date")
-
-# Convert to Julian Day
-if st.button("Convert"):
-    julian_day = date_to_julian_day(str(date))
-    st.success(f"The Julian Day for {date} is {julian_day:.2f}")
-
-
-
 # Calculate Erc
 Erc = calculate_erc(windspeed, albedo, n, lat, latmin, elevation, Tmax, Tmin, rhum, J)
 st.write("Reference Crop Evaporation is ", Erc)
