@@ -1,5 +1,7 @@
 import streamlit as st
 import numpy as np
+import streamlit as st
+import datetime
 
 st.set_page_config(page_title="Online Reference Crop Evaporation Rate Calculator")
 
@@ -44,6 +46,42 @@ Tmax = st.number_input("Maximum Temperature (°C)", value=15)
 Tmin = st.number_input("Minimum Temperature (°C)", value=5)
 rhum = st.number_input("Relative Humidity (%)", value=0.80)
 J = st.number_input("Julian Day", value=105)
+
+
+def julian_day(year, month, day):
+    """
+    Calculates the Julian day for a given date.
+
+    Parameters
+    ----------
+    year : int
+        The year.
+    month : int
+        The month.
+    day : int
+        The day.
+
+    Returns
+    -------
+    int
+        The Julian day.
+    """
+
+    if month <= 2:
+        year -= 1
+        month += 12
+
+    return (365 * year + year // 4 - year // 100 + year // 400 + (153 * month + 2) // 5 + day - 1)
+
+year = st.number_input("Year", min=1, max=9999)
+month = st.number_input("Month", min=1, max=12)
+day = st.number_input("Day", min=1, max=31)
+
+Ju = julian_day(year, month, day)
+
+st.write("The Julian day for {}-{}-{} is {}".format(year, month, day, julian_day))
+
+
 
 # Calculate Erc
 Erc = calculate_erc(windspeed, albedo, n, lat, latmin, elevation, Tmax, Tmin, rhum, J)
