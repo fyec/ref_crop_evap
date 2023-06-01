@@ -48,8 +48,6 @@ rhum = st.number_input("Relative Humidity (%)", value=0.80)
 J = st.number_input("Julian Day", value=105)
 
 
-
-
 def date_to_julian_day(date):
     # Calculate Julian day
     fmt = "%Y-%m-%d"
@@ -81,8 +79,6 @@ date = st.date_input("Enter a date")
 if st.button("Convert"):
     julian_day = date_to_julian_day(str(date))
     st.success(f"The Julian Day for {date} is {julian_day:.2f}")
-
-st.write("The Julian day for {}-{}-{} is {}".format(year, month, day, julian_day))
 
 
 
