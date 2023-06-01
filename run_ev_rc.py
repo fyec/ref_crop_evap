@@ -1,6 +1,8 @@
 import streamlit as st
 import numpy as np
 
+st.set_page_config(page_title="Online Reference Crop Evaporation Rate Calculator")
+
 def calculate_erc(windspeed, albedo, n, lat, latmin, elevation, Tmax, Tmin, rhum, J):
     P=101.3*((293-0.0065*elevation)/293)**5.256 #kPa
     Stefboltzcons = 4.903 * 10**-9 #MJ K-4 m-2 day-1
