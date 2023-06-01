@@ -31,7 +31,7 @@ def calculate_erc(windspeed, albedo, n, lat, latmin, elevation, Tmax, Tmin, rhum
     Erc = (Δ/(Δ+γmod))*(Rnet-G)+((γ/(Δ+γmod))*(900/(Tmean + 275))) * windspeed * D # reference crop evaporation
     return round(Erc, 2)
 
-st.title("Reference Crop Evaporation Calculator")
+st.title("Online Reference Crop Evaporation Rate Calculator")
 
 # User input
 windspeed = st.number_input("Windspeed (m/s)", value=3)
