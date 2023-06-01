@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import streamlit as st
-import datetime
+from datetime import datetime
 
 st.set_page_config(page_title="Online Reference Crop Evaporation Rate Calculator")
 
@@ -48,36 +48,39 @@ rhum = st.number_input("Relative Humidity (%)", value=0.80)
 J = st.number_input("Julian Day", value=105)
 
 
-def julian_day(year, month, day):
-    """
-    Calculates the Julian day for a given date.
 
-    Parameters
-    ----------
-    year : int
-        The year.
-    month : int
-        The month.
-    day : int
-        The day.
 
-    Returns
-    -------
-    int
-        The Julian day.
-    """
+def date_to_julian_day(date):
+    # Calculate Julian day
+    fmt = "%Y-%m-%d"
+    dt = datetime.strptime(date, fmt)
+    year = dt.year
+    month = dt.month
+    day = dt.day
 
-    if month <= 2:
-        year -= 1
+    if month < 3:
         month += 12
+        year -= 1
 
-    return (365 * year + year // 4 - year // 100 + year // 400 + (153 * month + 2) // 5 + day - 1)
+    A = year // 100
+    B = A // 4
+    C = 2 - A + B
+    E = int(365.25 * (year + 4716))
+    F = int(30.6001 * (month + 1))
 
-year = st.number_input("Year", min=1, max=9999)
-month = st.number_input("Month", min=1, max=12)
-day = st.number_input("Day", min=1, max=31)
+    julian_day = C + day + E + F - 1524.5
+    return julian_day
 
-Ju = julian_day(year, month, day)
+# Streamlit app
+st.title("Date to Julian Day Converter")
+
+# Date input
+date = st.date_input("Enter a date")
+
+# Convert to Julian Day
+if st.button("Convert"):
+    julian_day = date_to_julian_day(str(date))
+    st.success(f"The Julian Day for {date} is {julian_day:.2f}")
 
 st.write("The Julian day for {}-{}-{} is {}".format(year, month, day, julian_day))
 
