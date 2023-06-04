@@ -49,6 +49,6 @@ J = st.number_input("Julian Day", value=105)
 
 # Calculate Erc
 Erc = calculate_erc(windspeed, albedo, n, lat, latmin, elevation, Tmax, Tmin, rhum, J)
-st.write("Reference Crop Evaporation is ", Erc)
+st.write("Reference Crop Evaporation is ", Erc, " mm/day")
 
 
