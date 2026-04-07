@@ -3,39 +3,44 @@ import numpy as np
 
 st.set_page_config(page_title="Online Reference Crop Evaporation Rate Calculator")
 
-def calculate_erc(windspeed, albedo, n, lat, latmin, elevation, Tmax, Tmin, rhum, J):
-    P=101.3*((293-0.0065*elevation)/293)**5.256 #kPa
-    Stefboltzcons = 4.903 * 10**-9 #MJ K-4 m-2 day-1
-    Tmean = Tmax / 2 + Tmin / 2
-    λ = 2.501 - 0.002361*Tmean # latent heat of vaporization λ  [MJ/kg]
-    
-    e_tmax = 0.6108 * np.exp((17.27*Tmax)/(237.3+Tmax)) # kPa
-    e_tmin = 0.6108 * np.exp((17.27*Tmin)/(237.3+Tmin)) # kPa
-    
-    # FIXED: Split saturated and actual vapor pressure
-    e_sat = (e_tmax/2 + e_tmin/2) # kPa (Saturated)
-    e_act = e_sat * rhum # kPa (Actual)
-    
-    γ = 0.0016286*P/λ # psychrometric constant γ [kPa/°C]
-    D = e_sat - e_act # FIXED: Simplified Vapor pressure deficit
-    Δ = 4098*e_sat/((237.3+Tmean) **2) # FIXED: Now correctly uses true e_sat
-    γmod = γ * (1 + 0.33 * windspeed) # modified psychrometric constant
-    δ = 0.4093 * np.sin(2*np.pi*J/365-1.405) # and the solar declination, δ, are given by
-    φ = np.pi/180 * (lat + latmin/60) # The latitude, φ, expressed in radians is positive for the northern hemisphere and negative for the southern hemisphere. The conversion from decimal degrees to radians is given by:
-    ws  = np.arccos(-np.tan(φ) * np.tan(δ)) #the sunset hour angle 
-    N = 24 * ws/np.pi # The daylight hours, N
-    dr = 1 + 0.033 * np.cos(2*np.pi*J/365) # The inverse relative distance Earth-Sun, dr
-    Isd = 15.392 * dr * (ws*np.sin(φ) * np.sin(δ) + np.cos(φ)*np.cos(δ)*np.sin(ws)) # Extraterrestial Solar Radiation mm/day
-    Iscd = (0.25 + 0.5*n/N) * Isd # solar radiation at the ground mm/day
-    Sn = Iscd * (1-albedo) # Net solar radiation mm/day
-    E = 0.34 - 0.14*(e_act**0.5) # FIXED: Emissivity now correctly uses e_act
-    f = Iscd / Isd # Cloud factor for Longwave Radiation
-    Ln = -f * E * Stefboltzcons * ((Tmean+273.15)**4) / λ
-    Rnet = Sn + Ln
-    G = 0 # mm/day neglected soil heat flux
-    
-    #Reference Crop Evaporation
-    Erc = (Δ/(Δ+γmod))*(Rnet-G)+((γ/(Δ+γmod))*(900/(Tmean + 275))) * windspeed * D # reference crop evaporation
+def calculate_erc(windspeed, albedo, n, lat, latmin,
+                  elevation, Tmax, Tmin, rhum, J):
+
+    P          = 101.3 * ((293 - 0.0065 * elevation) / 293) ** 5.256
+    Stefan     = 4.903e-9
+    Tmean      = (Tmax + Tmin) / 2.0
+    lam        = 2.501 - 0.002361 * Tmean
+
+    e_tmax     = 0.6108 * np.exp(17.27 * Tmax / (237.3 + Tmax))
+    e_tmin     = 0.6108 * np.exp(17.27 * Tmin / (237.3 + Tmin))
+    e_sat      = (e_tmax + e_tmin) / 2.0
+    e_act      = e_sat * rhum
+
+    gamma      = 0.0016286 * P / lam
+    D          = e_sat - e_act
+    Delta      = 4098 * e_sat / (237.3 + Tmean) ** 2
+    denom      = Delta + gamma * (1 + 0.34 * windspeed)  # FAO-56
+
+    delta_sun  = 0.4093 * np.sin(2 * np.pi * J / 365 - 1.405)
+    phi        = np.pi / 180 * (lat + latmin / 60.0)
+    ws         = np.arccos(np.clip(-np.tan(phi) * np.tan(delta_sun), -1.0, 1.0))
+    N          = 24 * ws / np.pi
+    dr         = 1 + 0.033 * np.cos(2 * np.pi * J / 365)
+    Isd        = 15.392 * dr * (ws * np.sin(phi) * np.sin(delta_sun)
+                               + np.cos(phi) * np.cos(delta_sun) * np.sin(ws))
+
+    Iscd       = (0.25 + 0.5 * n / N) * Isd if N > 0 else 0.0
+    Sn         = Iscd * (1 - albedo)                          # MJ/m²/day
+
+    E_emis     = 0.34 - 0.14 * np.sqrt(max(e_act, 0))
+    f_cloud    = Iscd / Isd if Isd > 0 else 0.0
+    Ln         = -f_cloud * E_emis * Stefan * (Tmean + 273.15) ** 4  # MJ/m²/day
+
+    Rnet       = Sn + Ln                                      # MJ/m²/day
+
+    Erc = ( (Delta / denom) * (Rnet / lam)                   # Rnet mm/day'e çevriliyor
+          + (gamma  / denom) * (900 / (Tmean + 273)) * windspeed * D )
+
     return round(Erc, 2)
 
 st.title("Online Reference Crop Evaporation Rate Calculator")
