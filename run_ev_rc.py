@@ -8,7 +8,7 @@ def calculate_erc(windspeed, albedo, n, lat, latmin, elevation, Tmax, Tmin, rhum
     P=101.3*((293-0.0065*elevation)/293)**5.256 #kPa
     Stefboltzcons = 4.903 * 10**-9 #MJ K-4 m-2 day-1
     Tmean = Tmax / 2 + Tmin / 2
-    λ = 2.501 - 0.0002361*Tmean # latent heat of vaporization λ  [MJ/kg]
+    λ = 2.501 - 0.002361*Tmean # latent heat of vaporization λ  [MJ/kg]
     e_tmax = 0.6108 * np.exp((17.27*Tmax)/(237.3+Tmax)) # kPa
     e_tmin = 0.6108 * np.exp((17.27*Tmin)/(237.3+Tmin)) # kPa
     e_sat = (e_tmax/2 + e_tmin/2) * rhum # kPa
